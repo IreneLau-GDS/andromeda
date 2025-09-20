@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001-create-workflow-execution-table" author="workflow-service">
+        <createTable tableName="workflow_execution">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="execution_id" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="workflow_type" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(100)"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="input_data" type="JSONB"/>
+            <column name="output_data" type="JSONB"/>
+            <column name="metadata" type="JSONB"/>
+            <column name="error_code" type="VARCHAR(100)"/>
+            <column name="error_message" type="TEXT"/>
+            <column name="error_details" type="TEXT"/>
+            <column name="execution_time_ms" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <createIndex tableName="workflow_execution" indexName="idx_workflow_execution_type">
+            <column name="workflow_type"/>
+        </createIndex>
+        
+        <createIndex tableName="workflow_execution" indexName="idx_workflow_execution_user">
+            <column name="user_id"/>
+        </createIndex>
+        
+        <createIndex tableName="workflow_execution" indexName="idx_workflow_execution_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="workflow_execution" indexName="idx_workflow_execution_created">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="002-create-workflow-step-table" author="workflow-service">
+        <createTable tableName="workflow_step">
+            <column name="id" type="BIGSERIAL">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="execution_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step_order" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="input_data" type="JSONB"/>
+            <column name="output_data" type="JSONB"/>
+            <column name="error_message" type="TEXT"/>
+            <column name="execution_time_ms" type="BIGINT"/>
+            <column name="started_at" type="TIMESTAMP"/>
+            <column name="completed_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint
+                baseTableName="workflow_step"
+                baseColumnNames="execution_id"
+                referencedTableName="workflow_execution"
+                referencedColumnNames="execution_id"
+                constraintName="fk_workflow_step_execution"/>
+        
+        <createIndex tableName="workflow_step" indexName="idx_workflow_step_execution">
+            <column name="execution_id"/>
+        </createIndex>
+        
+        <createIndex tableName="workflow_step" indexName="idx_workflow_step_order">
+            <column name="execution_id"/>
+            <column name="step_order"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>
